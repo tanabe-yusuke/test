@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - npm install -g
+      - npm install --save-dev @angular-devkit/build-angular
+      - npm install -g @angular/cli
+  build:
+    commands:
+      - ng build
+      - aws s3 sync dist s3://test-tanabe-s3-01/application
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'dist*'
