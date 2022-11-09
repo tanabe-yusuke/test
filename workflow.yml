@@ -1,17 +1,24 @@
-name: Sync S3 Bucket
-on: push
-
+name: Build React on S3
+on:
+  push:
+      branches:
+        - master
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: awact/s3-action@master
-      with:
-        args: --acl public-read --follow-symlinks --delete
-      env:
-        SOURCE_DIR: './public'
-        AWS_REGION: 'us-east-1'
-        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Checkout
+        uses: actions/checkout@master  # リポジトリをチェックアウト
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build  # React ビルド
+
+      - name: Deploy  # S3にデプロイ 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |　# S3のbucket-for-deploying-react-projectバケットにデプロイ
+          aws s3 cp --recursive --region ap-northeast-1 build s3://bucket-for-deploying-react-project
